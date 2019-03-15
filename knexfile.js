@@ -14,10 +14,10 @@ module.exports = {
 		},
 		useNullAsDefault: true,
 		migrations: {
-			directory: './migrations',
+			directory: './data/migrations',
 			tableName: 'migrations'
 		},
-		seeds: { directory: './seeds' }
+		seeds: { directory: './data/seeds' }
 	},
 
 	production: {
@@ -29,9 +29,9 @@ module.exports = {
 		},
 		useNullAsDefault: true,
 		migrations: {
-			directory: './migrations',
+			directory: './data/migrations',
 			tableName: 'migrations'
 		},
-		seeds: { directory: './seeds' }
+		seeds: { directory: './data/seeds' }
 	}
 };

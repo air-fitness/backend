@@ -3,9 +3,16 @@ const express = require('express');
 const server = express();
 
 // Middleware
-const configureMiddleware = require('./config/middleware');
+const logger = require('morgan');
+const cors = require('cors');
+const helmet = require('helmet');
 
-configureMiddleware(server);
+module.exports = server => {
+	server.use(logger('tiny'));
+	server.use(cors());
+	server.use(helmet());
+	server.use(express.json());
+};
 
 // Sanity check
 server.get('/', (req, res) => {
@@ -16,6 +23,6 @@ server.get('/', (req, res) => {
 const exampleRoutes = require('./routes/exampleRoutes');
 
 // Endpoints
-server.use('/api/example', exampleRoutes);
+server.use('/api/exampleEndpoint', exampleRoutes);
 
 module.exports = server;
