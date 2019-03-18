@@ -1,24 +1,26 @@
+require("dotenv").config();
 const pg = require("pg");
-
-pg.defaults.ssl = process.env.PG_SSL
-  ? !!JSON.parse(String(process.env.PG_SSL))
-  : true;
+pg.defaults.ssl = true;
 
 module.exports = {
   development: {
-    client: "pg",
-    connection: {
-      host: "localhost",
-      user: "postgres",
-      database: "postgres"
-    },
+    client: "sqlite3",
     useNullAsDefault: true,
+    connection: {
+      filename: "./data/air-fitness.db3"
+    },
+    pool: {
+      afterCreate: (conn, done) => {
+        conn.run("PRAGMA foreign_keys = ON", done);
+      }
+    },
     migrations: {
       directory: "./data/migrations"
     },
-    seeds: { directory: "./data/seeds" }
+    seeds: {
+      directory: "./data/seeds"
+    }
   },
-
   production: {
     client: "pg",
     connection: process.env.DATABASE_URL,
@@ -26,11 +28,12 @@ module.exports = {
       min: 2,
       max: 10
     },
-    useNullAsDefault: true,
     migrations: {
-      directory: "./data/migrations",
-      tableName: "migrations"
+      tableName: "knex_migrations",
+      directory: "./data/migrations"
     },
-    seeds: { directory: "./data/seeds" }
+    seeds: {
+      directory: "./data/seeds"
+    }
   }
 };
