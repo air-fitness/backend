@@ -6,9 +6,10 @@ const server = express();
 const logger = require("morgan");
 const cors = require("cors");
 const helmet = require("helmet");
+const corsConfig = require("./middleware/corsConfig.js");
 
 server.use(logger("tiny"));
-server.use(cors());
+server.use(cors(corsConfig));
 server.use(helmet());
 server.use(express.json());
 
