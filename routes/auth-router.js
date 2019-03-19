@@ -5,6 +5,8 @@ const Users = require("../models/users-model.js");
 const secrets = require("../secret/secrets");
 
 router.post("/register", (req, res) => {
+  console.log("request", req);
+  console.log("req body", req.body);
   let user = req.body;
   const hash = bcrypt.hashSync(user.password, 10);
   user.password = hash;
@@ -14,6 +16,7 @@ router.post("/register", (req, res) => {
       res.status(201).json(saved);
     })
     .catch(err => {
+      console.log(err);
       res.status(500).json(err);
     });
 });
@@ -29,7 +32,7 @@ router.post("/login", (req, res) => {
       if (user && bcrypt.compareSync(password, user.password)) {
         const token = generateToken(user);
         res.status(200).json({
-          message: `Welcome to the Big Show, ${
+          message: `Welcome to AirFitness, ${
             user.username
           }! Here is a token just for you`,
           token
