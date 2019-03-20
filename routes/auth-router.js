@@ -2,7 +2,6 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const router = require("express").Router();
 const Users = require("../models/users-model.js");
-//const Instructors = require("../models/instructors-model.js");
 const secrets = require("../secret/secrets");
 
 router.post("/register", (req, res) => {
@@ -22,18 +21,20 @@ router.post("/register", (req, res) => {
     last_name,
     email,
     username,
-    password,
-    instructor,
-    paypal_id
+    password
   };
-
+  console.log("user:", user);
   const hash = bcrypt.hashSync(user.password, 10);
   user.password = hash;
 
-  Users.add(user)
-    .then(saved => {
-      console.log("saved", saved);
-      res.status(201).json(saved);
+  Users.add(user, instructor, paypal_id)
+    .then(({ user_id, error }) => {
+      if (error) {
+        res.status(500).json(error);
+      } else {
+        console.log("user_id", user_id);
+        res.status(201).json(user_id);
+      }
     })
     .catch(err => {
       res.status(500).json(err);
