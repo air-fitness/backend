@@ -3,7 +3,7 @@ const corsConfig = {
   origin: function(origin, callback) {
     const allowedOrigins = [
       "http://localhost:5000",
-      "https://airfitness.netlify.com"
+      "https://air-fitness.netlify.com"
     ];
     // allow requests with no origin
     // (like mobile apps or curl requests)
