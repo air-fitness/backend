@@ -2,18 +2,11 @@ exports.up = function(knex, Promise) {
   return knex.schema.createTable("instructors", instructors => {
     instructors.increments("instructor_id");
 
-    instructors.string("first_name", 128).notNullable();
-
-    instructors.string("last_name", 128).notNullable();
-
     instructors
-      .string("email", 128)
+      .integer("user_id")
+      .unsigned()
       .notNullable()
-      .unique();
-
-    instructors.string("password", 128).notNullable();
-
-    instructors.string("username", 128).unique();
+      .references("users.user_id");
 
     instructors.string("paypal_id", 128);
   });

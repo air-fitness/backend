@@ -2,11 +2,31 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const router = require("express").Router();
 const Users = require("../models/users-model.js");
+const Instructors = require("../models/instructors-model.js");
 const secrets = require("../secret/secrets");
 
 router.post("/register", (req, res) => {
   //   console.log("req body", req.body);
-  let user = req.body;
+  const {
+    first_name,
+    last_name,
+    email,
+    username,
+    password,
+    instructor,
+    paypal_id
+  } = req.body;
+
+  const user = {
+    first_name,
+    last_name,
+    email,
+    username,
+    password,
+    instructor,
+    paypal_id
+  };
+
   const hash = bcrypt.hashSync(user.password, 10);
   user.password = hash;
 
@@ -21,7 +41,7 @@ router.post("/register", (req, res) => {
 });
 
 router.post("/login", (req, res) => {
-  let { firstName, lastName, email, username, password, role } = req.body;
+  let { username, password } = req.body;
 
   Users.findBy({ username })
     .first()
@@ -47,11 +67,8 @@ router.post("/login", (req, res) => {
 
 function generateToken(user) {
   const payload = {
-    subject: user.id,
-    firstName: user.firstName,
-    lastName: user.lastName,
-    username: user.username,
-    role: user.role
+    subject: user.user_id,
+    username: user.username
   };
   const options = {
     expiresIn: "1w"

@@ -7,27 +7,18 @@ exports.seed = function(knex, Promise) {
       return knex("instructors").insert([
         {
           instructor_id: 1,
-          first_name: "Dhalsim",
-          last_name: "StreetFighter",
-          email: "dhalsim@dhalsim.com",
-          password: "password",
-          username: "yogidhalsim"
+          user_id: 2,
+          paypal_id: "DhalsimPayPal"
         },
         {
           instructor_id: 2,
-          first_name: "Zangief",
-          last_name: "StreetFighter",
-          email: "zangief@zangief.com",
-          password: "password",
-          username: "strongmanzangief"
+          user_id: 3,
+          paypal_id: "ZangiefPayPal"
         },
         {
           instructor_id: 3,
-          first_name: "Balrog",
-          last_name: "StreetFighter",
-          email: "balrog@balrog.com",
-          password: "password",
-          username: "boxerbalrog"
+          user_id: 4,
+          paypal_id: "BalrogPayPal"
         }
       ]);
     });

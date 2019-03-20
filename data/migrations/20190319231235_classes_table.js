@@ -6,15 +6,13 @@ exports.up = function(knex, Promise) {
       .integer("category_id")
       .unsigned()
       .notNullable()
-      .references("category_id")
-      .inTable("categories");
+      .references("categories.category_id");
 
     classes
       .integer("instructor_id")
       .unsigned()
       .notNullable()
-      .references("instructor_id")
-      .inTable("instructors");
+      .references("instructors.instructor_id");
 
     classes.date("start_time").notNullable();
 
