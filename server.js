@@ -22,9 +22,11 @@ server.get("/", (req, res) => {
 const exampleRoutes = require("./routes/exampleRoutes");
 const usersRouter = require("./routes/users-router.js");
 const authRouter = require("./routes/auth-router.js");
+const instructorsRouter = require("./routes/instructors-router.js");
 // Endpoints
 server.use("/api/exampleEndpoint", exampleRoutes);
 server.use("/api/auth", authRouter);
 server.use("/api/users", usersRouter);
+server.use("/api/instructors", instructorsRouter);
 
 module.exports = server;
