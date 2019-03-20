@@ -9,13 +9,12 @@ module.exports = {
 
 function find() {
   return db("users").select(
-    "id",
-    "firstName",
-    "lastName",
+    "user_id",
+    "first_name",
+    "last_name",
     "email",
     "username",
-    "password",
-    "role"
+    "password"
   );
 }
 
@@ -23,14 +22,25 @@ function findBy(filter) {
   return db("users").where(filter);
 }
 
-function findById(id) {
+function findById(user_id) {
   return db("users")
-    .where({ id })
+    .where({ user_id })
     .first();
 }
 
-async function add(user) {
-  const [id] = await db("users").insert(user);
-
-  return findById(id);
+function add(user) {
+  // ought to be a transaction
+  return db("users")
+    .insert(user)
+    .returning("user_id")
+    .then(user_id => {
+      if (user.instructor) {
+        return db("instructors")
+          .insert({ user_id, paypal_id })
+          .returning("instructor_id")
+          .then(() => {
+            return user_id;
+          });
+      } else return user_id;
+    });
 }
