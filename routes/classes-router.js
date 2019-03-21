@@ -254,7 +254,9 @@ router.post("/new_time/:class_id", restricted, (req, res) => {
         } else {
           return db("class_times")
             .insert({ class_id, start_time, location })
+
             .returning(["class_time_id", "class_id", "start_time"]);
+
         }
       });
   } else {
