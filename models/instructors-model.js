@@ -7,13 +7,16 @@ module.exports = {
 };
 
 function find() {
-  return db("instructors").select(
-    "instructor_id",
-    "first_name",
-    "last_name",
-    "paypal_id",
-    "user_id"
-  );
+  return db("instructors as i")
+    .join("users as u", "i.user_id", "u.user_id")
+    .select(
+      "i.instructor_id",
+      "u.user_id",
+      "u.username",
+      "u.first_name",
+      "u.last_name",
+      "i.paypal_id"
+    );
 }
 
 function findBy(filter) {

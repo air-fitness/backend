@@ -9,9 +9,9 @@ exports.up = function(knex, Promise) {
       .references("classes.class_id")
       .onDelete("CASCADE");
 
-    class_times
-      .date("start_time")
-      .notNullable();
+    class_times.datetime("start_time").notNullable();
+
+    class_times.datetime("end_time");
 
     class_times.string("location").notNullable();
   });
