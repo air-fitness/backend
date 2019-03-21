@@ -10,7 +10,8 @@ exports.up = function(knex, Promise) {
       .integer("class_id")
       .unsigned()
       .notNullable()
-      .references("classes.class_id");
+      .references("classes.class_id")
+      .onDelete("CASCADE");
 
     punch_cards
       .integer("punch_count")
