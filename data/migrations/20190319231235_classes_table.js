@@ -14,11 +14,7 @@ exports.up = function(knex, Promise) {
       .notNullable()
       .references("instructors.instructor_id");
 
-    classes.date("start_time").notNullable();
-
     classes.integer("duration").unsigned();
-
-    classes.string("location");
 
     classes.string("class_name", 128);
   });
