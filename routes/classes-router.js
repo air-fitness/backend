@@ -181,17 +181,6 @@ router.put("/:class_id", restricted, (req, res) => {
 
 // DELETE a class
 
-// if done by instructor:
-// refund the punch card
-// notify attendee
-// clear the entrees from the attendees table
-
-// if done by user:
-// reverse the flow of signup for a class
-// remove entry from attendee table
-// increment punch card
-// can't cancel class after it has happened (compare class.start_time to time.now)
-
 router.delete("/:class_id", restricted, (req, res) => {
   const class_id = req.params.class_id;
   const { instructor_id } = req.decodedJwt;
@@ -355,6 +344,17 @@ router.post("/attend/:class_id/:class_time_id", restricted, (req, res) => {
 });
 
 // ********** DELETE METHODS ********** //
+
+// if done by instructor:
+// refund the punch card
+// notify attendee
+// clear the entrees from the attendees table
+
+// if done by user:
+// reverse the flow of signup for a class
+// remove entry from attendee table
+// increment punch card
+// can't cancel class after it has happened (compare class.start_time to time.now)
 
 // DELETE a class time
 router.delete("/:class_time_id", restricted, (req, res) => {
