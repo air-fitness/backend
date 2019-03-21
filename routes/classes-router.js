@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const restricted = require("../middleware/restricted-middleware.js");
+const moment = require("moment");
 
 const db = require("../data/dbConfig.js");
 
@@ -167,7 +168,7 @@ router.get("/passes", restricted, (req, res) => {
 
 // ********** CREATE METHODS ********** //
 
-// POST a new PASS
+// Purchase a new punch pass to an existing class
 router.post("/purchase_pass/:class_id", restricted, (req, res) => {
   const class_id = req.params.class_id;
   const { user_id } = req.decodedJwt;
@@ -175,12 +176,21 @@ router.post("/purchase_pass/:class_id", restricted, (req, res) => {
     .where({ class_id, user_id })
     .increment("punch_count", 10)
     .then(updated_count => {
+      console.log("updated_count:", updated_count);
+      // check to see whether a pass has been previously purchased
       if (!updated_count) {
-        return db("punch_cards")
-          .insert({ class_id, user_id })
-          .returning(["class_id", "user_id", "punch_count"]);
+        return (
+          db("punch_cards")
+            // if no previously purchased pass, grab a pass for the first time and return this message
+            .insert({ class_id, user_id })
+            .returning(["class_id", "user_id", "punch_count"])
+            .then(() => {
+              res.status(201).json({ message: "punch pass purchased!" });
+            })
+        );
       } else {
-        return res.status(201).json({ message: "punch pass purchased!" });
+        // if user has already purchased a pass for the class in question, return a message
+        res.status(201).json({ message: "additional punch pass purchased!" });
       }
     })
     .catch(err => {
@@ -193,12 +203,15 @@ router.post("/purchase_pass/:class_id", restricted, (req, res) => {
 
 // GET class_times by class_id
 // return only classes whose timestamp is later than now
+
+// could change this to show all classes starting at today
+
 router.get("/class_times/:class_id", restricted, (req, res) => {
   const class_id = req.params.class_id;
-  console.log("Date:", Date.now());
+  console.log("moment().toDate():", moment.utc().toDate());
   return db("class_times")
     .where({ class_id })
-    .andWhere("start_time", ">", date("now"))
+    .andWhere("start_time", ">", moment.utc().toDate())
     .orderBy("start_time")
     .then(class_list => {
       res.status(200).json(class_list);
@@ -240,23 +253,31 @@ router.get("/by_user", restricted, (req, res) => {
 
 // ********** CREATE METHODS ********** //
 
-router.post("/new_time/:class_id", restricted, (req, res) => {
+// Post a new class_time
+router.post("/class_times/:class_id", restricted, (req, res) => {
   const { class_id } = req.params;
   const { instructor_id } = req.decodedJwt;
-  const { start_time, location } = req.body;
+  const { start_time, end_time, location } = req.body;
+
+  console.log("class_id:", class_id);
+  console.log("instructor_id:", instructor_id);
+  console.log("start_time:", start_time);
 
   if (instructor_id) {
     return db("classes")
       .where({ instructor_id, class_id })
-      .then(([class_object]) => {
-        if (!class_object) {
+      .then(([class_obj]) => {
+        if (!class_obj) {
           res.status(404).json({ message: "class not found" });
         } else {
           return db("class_times")
-            .insert({ class_id, start_time, location })
+            .insert({ class_id, start_time, end_time, location })
 
-            .returning(["class_time_id", "class_id", "start_time"]);
-
+            .returning(["class_time_id", "class_id", "start_time", "end_time"])
+            .then(([created_class_time]) => {
+              console.log(created_class_time.start_time);
+              res.status(200).json(created_class_time);
+            });
         }
       });
   } else {
@@ -264,8 +285,8 @@ router.post("/new_time/:class_id", restricted, (req, res) => {
   }
 });
 
-// Sign up for a new class
-router.post("/:class_id/:class_time_id", restricted, (req, res) => {
+// Sign up for a time slot for a class to which you've already purchased a pass
+router.post("/attend/:class_id/:class_time_id", restricted, (req, res) => {
   const { class_id, class_time_id } = req.params;
   const { user_id } = req.decodedJwt;
 
@@ -280,11 +301,14 @@ router.post("/:class_id/:class_time_id", restricted, (req, res) => {
         } else {
           return trx("punch_cards")
             .where({ class_id, user_id })
+            .andWhere("punch_count", ">", 0)
             .decrement("punch_count", 1)
             .then(count => {
               if (!count) {
                 console.log("Error: no passes for that class");
-                trx.rollback;
+                res
+                  .status(403)
+                  .json({ error: "No remaining uses for that class" });
               } else {
                 return trx("attendees")
                   .insert({ user_id, class_time_id })
@@ -296,7 +320,7 @@ router.post("/:class_id/:class_time_id", restricted, (req, res) => {
                       );
                       trx.rollback;
                     } else {
-                      return attendee_obj;
+                      res.status(201).json(attendee_obj);
                     }
                   });
               }
