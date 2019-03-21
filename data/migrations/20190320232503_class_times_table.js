@@ -10,8 +10,7 @@ exports.up = function(knex, Promise) {
       .onDelete("CASCADE");
 
     class_times
-      .bigInteger("start_time")
-      .unsigned()
+      .date("start_time")
       .notNullable();
 
     class_times.string("location").notNullable();

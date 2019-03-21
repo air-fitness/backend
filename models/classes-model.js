@@ -1,35 +1,37 @@
-const db = require("../data/dbConfig.js");
+// This model is not currently in use. It was decided to code the logic in the classes-routes instead for time savings
 
-module.exports = {
-  add,
-  find,
-  findBy,
-  findById,
-  remove,
-  update
-};
+// const db = require("../data/dbConfig.js");
 
-function find() {
-  return db("classes").select(
-    "class_id",
-    "category_id",
-    "instructor_id",
-    "start_time",
-    "duration",
-    "location",
-    "class_name"
-  );
-}
+// module.exports = {
+//   add,
+//   find,
+//   findBy,
+//   findById,
+//   remove,
+//   update
+// };
 
-function findBy(filter) {
-  return db("classes").where(filter);
-}
+// function find() {
+//   return db("classes").select(
+//     "class_id",
+//     "category_id",
+//     "instructor_id",
+//     "start_time",
+//     "duration",
+//     "location",
+//     "class_name"
+//   );
+// }
 
-function findById(class_id) {
-  return db("classes")
-    .where({ class_id })
-    .first();
-}
+// function findBy(filter) {
+//   return db("classes").where(filter);
+// }
+
+// function findById(class_id) {
+//   return db("classes")
+//     .where({ class_id })
+//     .first();
+// }
 
 // need functions to do the following:
 // create a class

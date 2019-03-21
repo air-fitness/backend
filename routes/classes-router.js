@@ -53,7 +53,8 @@ router.get("/by_instructor/:instructor_id", (req, res) => {
 router.post("/", restricted, (req, res) => {
   const newClass = req.body;
   const { instructor_id } = req.decodedJwt;
-  console.log("newClass:", newClass);
+  console.log("newClass + instructor_id:", { ...newClass, instructor_id });
+
   if (instructor_id) {
     db("classes")
       .insert({ ...newClass, instructor_id })
@@ -68,7 +69,7 @@ router.post("/", restricted, (req, res) => {
         res.status(201).json(class_obj);
       })
       .catch(error => {
-        res.status(500).json({ message: "unable to add new class" });
+        res.status(500).json({ error, message: "unable to add new class" });
       });
   } else {
     res.status(401).json({ message: "Access restricted to instructors" });
@@ -197,7 +198,7 @@ router.get("/class_times/:class_id", restricted, (req, res) => {
   console.log("Date:", Date.now());
   return db("class_times")
     .where({ class_id })
-    .andWhere("start_time", ">", Date.now())
+    .andWhere("start_time", ">", date("now"))
     .orderBy("start_time")
     .then(class_list => {
       res.status(200).json(class_list);
@@ -253,7 +254,9 @@ router.post("/new_time/:class_id", restricted, (req, res) => {
         } else {
           return db("class_times")
             .insert({ class_id, start_time, location })
-            .returning(["class_time_id", "class_id", ""]);
+
+            .returning(["class_time_id", "class_id", "start_time"]);
+
         }
       });
   } else {

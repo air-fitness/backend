@@ -7,7 +7,13 @@ module.exports = {
 };
 
 function find() {
-  return db("instructors").select("instructor_id", "paypal_id", "user_id");
+  return db("instructors").select(
+    "instructor_id",
+    "first_name",
+    "last_name",
+    "paypal_id",
+    "user_id"
+  );
 }
 
 function findBy(filter) {
