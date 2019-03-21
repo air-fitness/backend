@@ -54,8 +54,7 @@ router.post("/register", (req, res) => {
 router.post("/login", (req, res) => {
   let { username, password } = req.body;
 
-  Users.findBy({ username })
-    .first()
+  Users.findBy(username)
     .then(user_obj => {
       console.log("user_obj", user_obj);
       console.log("req body", req.body);
