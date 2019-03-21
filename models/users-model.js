@@ -18,9 +18,17 @@ function find() {
 }
 
 function findBy(username) {
-  return db("users")
-    .where(username)
-    .leftJoin("instructors", "users.user_id", "instructors.user_id")
+  return db("users as u")
+    .where({ username })
+    .leftJoin("instructors as i", "u.user_id", "i.user_id")
+    .select(
+      "u.user_id",
+      "u.username",
+      "u.first_name",
+      "u.last_name",
+      "u.password",
+      "i.instructor_id"
+    )
     .first();
 }
 

@@ -151,6 +151,18 @@ router.delete("/:class_id", restricted, (req, res) => {
 // ***************** ENDPOINTS FOR CLASS PASSES ***************** //
 
 // Get Passes by user_id
+router.get("/passes", restricted, (req, res) => {
+  const { user_id } = req.decodedJwt;
+
+  db("punch_cards")
+    .where({ user_id })
+    .then(filtered_passes => {
+      res.status(200).json(filtered_passes);
+    })
+    .catch(error => {
+      releaseEvents.status(500).json(error);
+    });
+});
 
 // ********** CREATE METHODS ********** //
 
@@ -201,11 +213,55 @@ router.get("/by_user", restricted, (req, res) => {
 
   return db("punchcards as p")
     .where({ user_id })
-    .join("");
+    .join("class_times as ct", "p.class_id", "ct.class_id")
+    .join("classes as c", "p.class_id", "c.class_id")
+    .join("instructors as i", "c.instructor_id", "i.instructor_id")
+    .join("users as u", "i.user_id", "u.user_id")
+    .leftJoin("attendees as a", "ct.class_time_id", "a.class_time_id")
+    .select(
+      "p.class_id",
+      "c.class_name",
+      "i.instructor_id",
+      "u.username as instructor_name",
+      "ct.class_time_id",
+      "ct.start_time",
+      "ct.location",
+      "a.user_id as attending"
+    )
+    .orderBy("ct.start_time")
+    .then(class_times => {
+      res.status(200).json(class_times);
+    })
+    .catch(error => {
+      res.status(500).json(error);
+    });
 });
 
 // ********** CREATE METHODS ********** //
 
+router.post("/new_time/:class_id", restricted, (req, res) => {
+  const { class_id } = req.params;
+  const { instructor_id } = req.decodedJwt;
+  const { start_time, location } = req.body;
+
+  if (instructor_id) {
+    return db("classes")
+      .where({ instructor_id, class_id })
+      .then(([class_object]) => {
+        if (!class_object) {
+          res.status(404).json({ message: "class not found" });
+        } else {
+          return db("class_times")
+            .insert({ class_id, start_time, location })
+            .returning(["class_time_id", "class_id", ""]);
+        }
+      });
+  } else {
+    res.status(401).json({ message: "Access restricted to instructors" });
+  }
+});
+
+// Sign up for a new class
 router.post("/:class_id/:class_time_id", restricted, (req, res) => {
   const { class_id, class_time_id } = req.params;
   const { user_id } = req.decodedJwt;
