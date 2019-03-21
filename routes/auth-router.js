@@ -28,12 +28,22 @@ router.post("/register", (req, res) => {
   user.password = hash;
 
   Users.add(user, instructor, paypal_id)
-    .then(({ user_id, error }) => {
-      if (error) {
+    .then(user_obj => {
+      if (user_obj.error) {
         res.status(500).json(error);
       } else {
-        console.log("user_id", user_id);
-        res.status(201).json(user_id);
+        const token = generateToken(user_obj);
+        res.status(200).json({
+          message: `Welcome to AirFitness, ${
+            user_obj.username
+          }! Here is a token just for you`,
+          token,
+          user_id: user_obj.user_id,
+          username: user_obj.username,
+          first_name: user_obj.first_name,
+          last_name: user_obj.last_name,
+          instructor_id: user_obj.instructor_id
+        });
       }
     })
     .catch(err => {
@@ -46,16 +56,21 @@ router.post("/login", (req, res) => {
 
   Users.findBy({ username })
     .first()
-    .then(user => {
-      console.log("user", user);
+    .then(user_obj => {
+      console.log("user_obj", user_obj);
       console.log("req body", req.body);
-      if (user && bcrypt.compareSync(password, user.password)) {
-        const token = generateToken(user);
+      if (user_obj && bcrypt.compareSync(password, user_obj.password)) {
+        const token = generateToken(user_obj);
         res.status(200).json({
           message: `Welcome to AirFitness, ${
-            user.username
+            user_obj.username
           }! Here is a token just for you`,
-          token
+          token,
+          user_id: user_obj.user_id,
+          username: user_obj.username,
+          first_name: user_obj.first_name,
+          last_name: user_obj.last_name,
+          instructor_id: user_obj.instructor_id
         });
       } else {
         res.status(401).json({ message: "You shall not pass!" });
@@ -66,10 +81,13 @@ router.post("/login", (req, res) => {
     });
 });
 
-function generateToken(user) {
+function generateToken(user_obj) {
   const payload = {
-    subject: user.user_id,
-    username: user.username
+    user_id: user_obj.user_id,
+    username: user_obj.username,
+    first_name: user_obj.first_name,
+    last_name: user_obj.last_name,
+    instructor_id: user_obj.instructor_id
   };
   const options = {
     expiresIn: "1w"
