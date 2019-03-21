@@ -19,6 +19,70 @@ router.get("/", (req, res) => {
     });
 });
 
+// Get Passes by user_id
+router.get("/passes", restricted, (req, res) => {
+  const { user_id } = req.decodedJwt;
+  db("punch_cards as p")
+    .where("p.user_id", user_id)
+    .join("classes as c", "p.class_id", "c.class_id")
+    .join("categories as cat", "c.category_id", "cat.category_id")
+    .join("instructors as i", "c.instructor_id", "i.instructor_id")
+    .join("users as u", "i.user_id", "u.user_id")
+    .select(
+      "p.class_id",
+      "c.class_name",
+      "c.category_id",
+      "cat.category_name",
+      "c.duration",
+      "i.instructor_id",
+      "u.username as instructor_name",
+      "p.punch_count"
+    )
+    .orderBy("p.punch_count", "desc")
+    .then(filtered_passes => {
+      res.status(200).json(filtered_passes);
+    })
+    .catch(error => {
+      res.status(500).json(error);
+    });
+});
+
+// GET class_times by user_id (using punch_cards.class_id, joining attendees by class_time_id and user_id)
+router.get("/calendar", restricted, (req, res) => {
+  const { user_id } = req.decodedJwt;
+
+  console.log("user_id:", user_id);
+
+  return db("punch_cards as p")
+    .where("p.user_id", user_id)
+    .join("class_times as ct", "p.class_id", "ct.class_id")
+    .join("classes as c", "ct.class_id", "c.class_id")
+    .join("instructors as i", "c.instructor_id", "i.instructor_id")
+    .join("users as u", "i.user_id", "u.user_id")
+    .leftJoin("attendees as a", "ct.class_time_id", "a.class_time_id")
+    .where("ct.start_time", ">", moment.utc().toDate())
+    .select(
+      "p.class_id",
+      "c.class_name",
+      "i.instructor_id",
+      "u.username as instructor_name",
+      "ct.class_time_id",
+      "ct.start_time",
+      "ct.location",
+      "a.user_id as attending",
+      "p.punch_count"
+    )
+    .orderBy("ct.start_time")
+    .then(class_times => {
+      res.status(200).json(class_times);
+    })
+    .catch(error => {
+      console.log("error:", error);
+
+      res.status(500).json(error);
+    });
+});
+
 // GET classes by ID
 router.get("/:class_id", (req, res) => {
   db("classes")
@@ -152,26 +216,13 @@ router.delete("/:class_id", restricted, (req, res) => {
 
 // ***************** ENDPOINTS FOR CLASS PASSES ***************** //
 
-// Get Passes by user_id
-router.get("/passes", restricted, (req, res) => {
-  const { user_id } = req.decodedJwt;
-
-  db("punch_cards")
-    .where({ user_id })
-    .then(filtered_passes => {
-      res.status(200).json(filtered_passes);
-    })
-    .catch(error => {
-      releaseEvents.status(500).json(error);
-    });
-});
-
 // ********** CREATE METHODS ********** //
 
 // Purchase a new punch pass to an existing class
 router.post("/purchase_pass/:class_id", restricted, (req, res) => {
   const class_id = req.params.class_id;
   const { user_id } = req.decodedJwt;
+
   return db("punch_cards")
     .where({ class_id, user_id })
     .increment("punch_count", 10)
@@ -215,36 +266,6 @@ router.get("/class_times/:class_id", restricted, (req, res) => {
     .orderBy("start_time")
     .then(class_list => {
       res.status(200).json(class_list);
-    })
-    .catch(error => {
-      res.status(500).json(error);
-    });
-});
-
-// GET class_times by user_id (using punch_cards.class_id, joining attendees by class_time_id and user_id)
-router.get("/by_user", restricted, (req, res) => {
-  const { user_id } = req.decodedJwt;
-
-  return db("punchcards as p")
-    .where({ user_id })
-    .join("class_times as ct", "p.class_id", "ct.class_id")
-    .join("classes as c", "p.class_id", "c.class_id")
-    .join("instructors as i", "c.instructor_id", "i.instructor_id")
-    .join("users as u", "i.user_id", "u.user_id")
-    .leftJoin("attendees as a", "ct.class_time_id", "a.class_time_id")
-    .select(
-      "p.class_id",
-      "c.class_name",
-      "i.instructor_id",
-      "u.username as instructor_name",
-      "ct.class_time_id",
-      "ct.start_time",
-      "ct.location",
-      "a.user_id as attending"
-    )
-    .orderBy("ct.start_time")
-    .then(class_times => {
-      res.status(200).json(class_times);
     })
     .catch(error => {
       res.status(500).json(error);
