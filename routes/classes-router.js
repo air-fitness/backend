@@ -89,6 +89,7 @@ router.get("/calendar", restricted, (req, res) => {
       "u.username as instructor_name",
       "ct.class_time_id",
       "ct.start_time",
+      "ct.end_time",
       "ct.location",
       "a.user_id as attending",
       "p.punch_count"
