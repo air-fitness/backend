@@ -71,6 +71,7 @@ router.get("/calendar", restricted, (req, res) => {
     .where("p.user_id", user_id)
     .join("class_times as ct", "p.class_id", "ct.class_id")
     .join("classes as c", "ct.class_id", "c.class_id")
+    .join("categories as cat", "c.category_id", "cat.category_id")
     .join("instructors as i", "c.instructor_id", "i.instructor_id")
     .join("users as u", "i.user_id", "u.user_id")
     .leftJoin("attendees as a", "ct.class_time_id", "a.class_time_id")
@@ -85,6 +86,8 @@ router.get("/calendar", restricted, (req, res) => {
     .select(
       "p.class_id",
       "c.class_name",
+      "c.category_id",
+      "cat.category_name",
       "i.instructor_id",
       "u.username as instructor_name",
       "ct.class_time_id",
