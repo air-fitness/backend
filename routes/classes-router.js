@@ -10,7 +10,21 @@ const db = require("../data/dbConfig.js");
 
 // GET all Classes
 router.get("/", (req, res) => {
-  db("classes")
+  db("classes as c")
+    .join("categories as cat", "c.category_id", "cat.category_id")
+    .join("instructors as i", "c.instructor_id", "i.instructor_id")
+    .join("users as u", "i.user_id", "u.user_id")
+    .select(
+      "c.class_id",
+      "c.class_name",
+      "c.category_id",
+      "cat.category_name",
+      "c.duration",
+      "i.instructor_id",
+      "u.username as instructor_username",
+      "u.first_name as instructor_first_name",
+      "u.last_name as instructor_last_name"
+    )
     .then(classes => {
       res.status(200).json(classes);
     })
@@ -60,7 +74,14 @@ router.get("/calendar", restricted, (req, res) => {
     .join("instructors as i", "c.instructor_id", "i.instructor_id")
     .join("users as u", "i.user_id", "u.user_id")
     .leftJoin("attendees as a", "ct.class_time_id", "a.class_time_id")
-    .where("ct.start_time", ">", moment.utc().toDate())
+    .where(
+      "ct.start_time",
+      ">",
+      moment
+        .utc()
+        .startOf("day")
+        .toDate()
+    )
     .select(
       "p.class_id",
       "c.class_name",
@@ -251,7 +272,14 @@ router.get("/class_times/:class_id", restricted, (req, res) => {
   console.log("moment().toDate():", moment.utc().toDate());
   return db("class_times")
     .where({ class_id })
-    .andWhere("start_time", ">", moment.utc().toDate())
+    .andWhere(
+      "start_time",
+      ">",
+      moment
+        .utc()
+        .startOf("day")
+        .toDate()
+    )
     .orderBy("start_time")
     .then(class_list => {
       res.status(200).json(class_list);
