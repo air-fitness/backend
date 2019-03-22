@@ -12,6 +12,26 @@ router.get("/", restricted, (req, res) => {
     .catch(err => res.send(err));
 });
 
+// GET admin info
+// gets classes by instructor id, returns those
+// gets the categories, and then returns those
+
+router.get("/tools", restricted, (req, res) => {
+  const { instructor_id } = req.decodedJwt;
+  db("classes")
+    .where({ instructor_id })
+    .then(filtered_classes => {
+      res.status(200).json(filtered_classes);
+      db("categories").then(categories => {
+        res.status(200).json(categories);
+      });
+    })
+    .catch(err => {
+      res.status(500).json(err);
+    });
+});
+module.exports = router;
+
 // get Instructors by id w/ a list of their classes
 router.get("/:instructor_id", restricted, (req, res) => {
   instructor_id = req.params.instructor_id;
@@ -35,4 +55,3 @@ router.get("/:instructor_id", restricted, (req, res) => {
       res.status(500).json(error);
     });
 });
-module.exports = router;
