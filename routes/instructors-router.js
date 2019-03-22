@@ -26,8 +26,8 @@ router.get("/tools", restricted, (req, res) => {
         res.status(200).json(categories);
       });
     })
-    .catch(error => {
-      res.status(500).json(error);
+    .catch(err => {
+      res.status(500).json(err);
     });
 });
 module.exports = router;
