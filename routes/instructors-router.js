@@ -20,17 +20,19 @@ router.get("/tools", restricted, (req, res) => {
   const { instructor_id } = req.decodedJwt;
   db("classes")
     .where({ instructor_id })
-    .then(filtered_classes => {
-      res.status(200).json(filtered_classes);
+    .then(instructor_classes => {
+      console.log("instructor_classes:", instructor_classes);
       db("categories").then(categories => {
-        res.status(200).json(categories);
+        res.json({
+          categories: categories,
+          instructor_classes: instructor_classes
+        });
       });
     })
     .catch(err => {
       res.status(500).json(err);
     });
 });
-module.exports = router;
 
 // get Instructors by id w/ a list of their classes
 router.get("/:instructor_id", restricted, (req, res) => {
@@ -55,3 +57,5 @@ router.get("/:instructor_id", restricted, (req, res) => {
       res.status(500).json(error);
     });
 });
+
+module.exports = router;
