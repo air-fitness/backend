@@ -51,7 +51,7 @@ router.post("/register", (req, res) => {
             instructor_id
           });
           res.status(200).json({
-            message: `Welcome to AirFitness, ${username}! Here is a token just for you`,
+            message: `Welcome to AirFitness, ${username}!`,
             token,
             user_id,
             username,
@@ -63,7 +63,10 @@ router.post("/register", (req, res) => {
       }
     )
     .catch(err => {
-      res.status(500).json(err);
+      res.status(400).json({
+        error: true,
+        message: "There was a problem with your request"
+      });
     });
 });
 
