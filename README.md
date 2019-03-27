@@ -16,12 +16,22 @@
   - [Login](#Login)
 - [Users routes](#user-routes)
   - [Get all users](#Get-all-users)
-- [Instructors routes](#user-routes)
+- [Instructors routes](#instructors-routes)
   - [Get all instructors](#Get-all-instructors)
   - [Get instrcutor by ID](#Get-instructor-by-id)
+  - [Get instructor tools](#instructor-tools)
 - [Classes routes](#classes-routes)
   - [Get all classes](#get-all-classes)
   - [Get classes by ID](#get-classes-by-id)
+  - [Get classes by instructor/:instructor_id](#get-classes-by-instructor-id)
+  - [Create a class](#create-new-class)
+  - [Update a class](#update-class)
+  - [Delete a class](#delete-class)
+  - [Create new class time](#create-class-time)
+  - [Delete a class time](#delete-class-time)
+  - [Get class times by class id](#class-times-by-class-id)
+  - [Purchase a 10-class pass](#puchase-class-pass)
+  - [Sign up to attend a class time](#attend-class)
 
 ---
 
@@ -198,13 +208,12 @@ email: "trout@email.com"
 }
 
 ```
-##### 400 (Bad Request)
->If you send in invalid fields, the endpoint will return an HTTP response with a status code `400` and a body as below.
+##### 403 (Not Unique)
+>If you send in non-unique fields for usernam or password, the endpoint will return an HTTP response with a status code `403` and a body as below.
 ```
 
 {
-"error": true,
-"message": "There was a problem with your request."
+"not_unique": "field that is not unique"
 }
 
 ```
@@ -236,7 +245,7 @@ ____
 ```
 
 {
-username: "ceciljohn",
+username: "username",
 password: "password"
 }
 
@@ -277,4 +286,53 @@ password: "password"
 
 [Back to Table of Contents](#table-of-contents)
 ___
+```
+
+# USER ROUTES
+
+## **GET ALL USERS**
+
+### Returns all users
+
+_Mehod Url:_ `/api/users`
+_HTTP method:_ **[GET]**
+
+#### Headers
+
+| name           | type   | required | description              |
+| -------------- | ------ | -------- | ------------------------ |
+| `Content-Type` | String | Yes      | Must be application/json |
+
+#### Response
+
+##### 200 (OK)
+
+> If you successfully get al the users, the endpoint will return an HTTP response with a status code `200` and a body as below.
+
+```
+{
+[
+    {
+        "user_id": 1,
+        "first_name": "test1",
+        "last_name": "test1",
+        "email": "test1",
+        "username": "test1"
+    },
+    {
+        "user_id": 2,
+        "first_name": "Test",
+        "last_name": "User",
+        "email": "instructoremail",
+        "username": "probably_an_instructor"
+    },
+    {
+        "user_id": 3,
+        "first_name": "Test",
+        "last_name": "User",
+        "email": "new_useremail",
+        "username": "new_definitely_a_user"
+    }
+]
+}
 ```
