@@ -216,11 +216,11 @@ Create a new class|POST|/api/classes|`PROTECTED ROUTE` - Inserts a new class int
 ```
 
 {
-first_name: "josh",
-last_name: "armantrout"
-username: "josharmantrout",
+first_name: "test",
+last_name: "user"
+username: "testuser",
 password: "password",
-email: "trout@email.com"
+email: "email@email.com"
 }
 
 ```
