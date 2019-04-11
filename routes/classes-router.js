@@ -34,6 +34,7 @@ router.get("/", (req, res) => {
 });
 
 // Get Passes by user_id
+// returns a list of classes for which a user has purchased passes and how many punches a user has left for each class
 router.get("/passes", restricted, (req, res) => {
   const { user_id } = req.decodedJwt;
   db("punch_cards as p")
@@ -138,7 +139,7 @@ router.get("/by_instructor/:instructor_id", (req, res) => {
 
 // POST a new class
 
-// Protected route - only an instrcutor may post a new class
+// Protected route - only an instructor may post a new class
 
 router.post("/", restricted, (req, res) => {
   const newClass = req.body;
