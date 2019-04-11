@@ -34,78 +34,81 @@ router.get('/', (req, res) => {
 });
 
 // Get Passes by user_id
-router.get('/passes', restricted, (req, res) => {
-	const { user_id } = req.decodedJwt;
-	db('punch_cards as p')
-		.where('p.user_id', user_id)
-		.join('classes as c', 'p.class_id', 'c.class_id')
-		.join('categories as cat', 'c.category_id', 'cat.category_id')
-		.join('instructors as i', 'c.instructor_id', 'i.instructor_id')
-		.join('users as u', 'i.user_id', 'u.user_id')
-		.select(
-			'p.class_id',
-			'c.class_name',
-			'c.category_id',
-			'cat.category_name',
-			'c.duration',
-			'i.instructor_id',
-			'u.username as instructor_name',
-			'p.punch_count'
-		)
-		.orderBy('p.punch_count', 'desc')
-		.then(filtered_passes => {
-			res.status(200).json(filtered_passes);
-		})
-		.catch(error => {
-			res.status(500).json(error);
-		});
+
+// returns a list of classes for which a user has purchased passes and how many punches a user has left for each class
+router.get("/passes", restricted, (req, res) => {
+  const { user_id } = req.decodedJwt;
+  db("punch_cards as p")
+    .where("p.user_id", user_id)
+    .join("classes as c", "p.class_id", "c.class_id")
+    .join("categories as cat", "c.category_id", "cat.category_id")
+    .join("instructors as i", "c.instructor_id", "i.instructor_id")
+    .join("users as u", "i.user_id", "u.user_id")
+    .select(
+      "p.class_id",
+      "c.class_name",
+      "c.category_id",
+      "cat.category_name",
+      "c.duration",
+      "i.instructor_id",
+      "u.username as instructor_name",
+      "p.punch_count"
+    )
+    .orderBy("p.punch_count", "desc")
+    .then(filtered_passes => {
+      res.status(200).json(filtered_passes);
+    })
+    .catch(error => {
+      res.status(500).json(error);
+    });
 });
 
 // GET class_times by user_id (using punch_cards.class_id, joining attendees by class_time_id and user_id)
-router.get('/calendar', restricted, (req, res) => {
-	const { user_id } = req.decodedJwt;
+router.get("/calendar", restricted, (req, res) => {
+  const { user_id } = req.decodedJwt;
 
-	console.log('user_id:', user_id);
+  console.log("user_id:", user_id);
 
-	return db('punch_cards as p')
-		.where('p.user_id', user_id)
-		.join('class_times as ct', 'p.class_id', 'ct.class_id')
-		.join('classes as c', 'ct.class_id', 'c.class_id')
-		.join('categories as cat', 'c.category_id', 'cat.category_id')
-		.join('instructors as i', 'c.instructor_id', 'i.instructor_id')
-		.join('users as u', 'i.user_id', 'u.user_id')
-		.leftJoin('attendees as a', 'ct.class_time_id', 'a.class_time_id')
-		.where(
-			'ct.start_time',
-			'>',
-			moment
-				.utc()
-				.startOf('day')
-				.toDate()
-		)
-		.select(
-			'p.class_id',
-			'c.class_name',
-			'c.category_id',
-			'cat.category_name',
-			'i.instructor_id',
-			'u.username as instructor_name',
-			'ct.class_time_id',
-			'ct.start_time',
-			'ct.end_time',
-			'ct.location',
-			'a.user_id as attending',
-			'p.punch_count'
-		)
-		.orderBy('ct.start_time')
-		.then(class_times => {
-			res.status(200).json(class_times);
-		})
-		.catch(error => {
-			console.log('error:', error);
+  return db("punch_cards as p")
+    .where("p.user_id", user_id)
+    .join("class_times as ct", "p.class_id", "ct.class_id")
+    .join("classes as c", "ct.class_id", "c.class_id")
+    .join("categories as cat", "c.category_id", "cat.category_id")
+    .join("instructors as i", "c.instructor_id", "i.instructor_id")
+    .join("users as u", "i.user_id", "u.user_id")
+    .leftJoin("attendees as a", "ct.class_time_id", "a.class_time_id")
+    .where(
+      "ct.start_time",
+      ">",
+      moment
+        .utc()
+        .startOf("day")
+        .toDate()
+    )
+    .select(
+      "p.class_id",
+      "c.class_name",
+      "c.category_id",
+      "cat.category_name",
+      "i.instructor_id",
+      "u.username as instructor_name",
+      "ct.class_time_id",
+      "ct.start_time",
+      "ct.end_time",
+      "ct.location",
+      "a.user_id as attending",
+      "p.punch_count"
+    )
+    .orderBy("ct.start_time")
+    .then(class_times => {
+      res.status(200).json(class_times);
+    })
+    .catch(error => {
+      console.log("error:", error);
 
-			res.status(500).json(error);
-		});
+      res.status(500).json(error);
+    });
+
 });
 
 // GET classes by ID
@@ -138,7 +141,7 @@ router.get('/by_instructor/:instructor_id', (req, res) => {
 
 // POST a new class
 
-// Protected route - only an instrcutor may post a new class
+// Protected route - only an instructor may post a new class
 
 router.post('/', restricted, (req, res) => {
 	const newClass = req.body;

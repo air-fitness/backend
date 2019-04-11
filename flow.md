@@ -9,3 +9,17 @@
 - punch card -> sign up for Class time as User
 - build the user calendar -> get Classes by User
 - User can view their punch cards
+
+* [Classes routes](#classes-routes)
+  - [Get all classes](#get-all-classes)
+  - [Get classes by ID](#get-classes-by-id)
+  - [Get classes by instructor/:instructor_id](#get-classes-by-instructor-id)
+  - [Create a class](#create-new-class)
+  - [Update a class](#update-class)
+  - [Delete a class](#delete-class)
+  - [Create new class time](#create-class-time)
+  - [Delete a class time](#delete-class-time)
+  - [Get class times by class id](#class-times-by-class-id)
+  - [Purchase a 10-class pass](#purchase-class-pass)
+  - [Sign up to attend a class time](#attend-class)
+  - [View calendar of classes for a user](#get-user-calendar)

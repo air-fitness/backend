@@ -51,7 +51,7 @@ router.post("/register", (req, res) => {
             instructor_id
           });
           res.status(200).json({
-            message: `Welcome to AirFitness, ${username}! Here is a token just for you`,
+            message: `Welcome to AirFitness, ${username}!`,
             token,
             user_id,
             username,
@@ -63,37 +63,44 @@ router.post("/register", (req, res) => {
       }
     )
     .catch(err => {
-      res.status(500).json(err);
+      res.status(400).json({
+        error: true,
+        message: "There was a problem with your request"
+      });
     });
 });
 
 router.post("/login", (req, res) => {
   let { username, password } = req.body;
-
-  Users.findBy(username)
-    .then(user_obj => {
-      console.log("user_obj", user_obj);
-      console.log("req body", req.body);
-      if (user_obj && bcrypt.compareSync(password, user_obj.password)) {
-        const token = generateToken(user_obj);
-        res.status(200).json({
-          message: `Welcome to AirFitness, ${
-            user_obj.username
-          }! Here is a token just for you`,
-          token,
-          user_id: user_obj.user_id,
-          username: user_obj.username,
-          first_name: user_obj.first_name,
-          last_name: user_obj.last_name,
-          instructor_id: user_obj.instructor_id
-        });
-      } else {
-        res.status(401).json({ message: "You shall not pass!" });
-      }
-    })
-    .catch(err => {
-      res.status(500).json(err);
-    });
+  if (!username || !password) {
+    res.status(422).json({ message: "Missing username and password fields" });
+  } else {
+    Users.findBy(username)
+      .then(user_obj => {
+        console.log("user_obj", user_obj);
+        console.log("req body", req.body);
+        if (user_obj && bcrypt.compareSync(password, user_obj.password)) {
+          const token = generateToken(user_obj);
+          res.status(200).json({
+            message: `Welcome to AirFitness, ${user_obj.username}!`,
+            token,
+            user_id: user_obj.user_id,
+            username: user_obj.username,
+            first_name: user_obj.first_name,
+            last_name: user_obj.last_name,
+            instructor_id: user_obj.instructor_id
+          });
+        } else {
+          res.status(400).json({
+            error: true,
+            message: "There was a problem with your request"
+          });
+        }
+      })
+      .catch(err => {
+        res.status(500).json(err);
+      });
+  }
 });
 
 function generateToken(user_obj) {
